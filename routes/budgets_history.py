@@ -2,6 +2,8 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from models.budgets import Budget, BudgetBase
+from models.budgets_categories import BudgetCategory, BudgetCategoryBase
 
 from database import get_db
 from models.budgets_history import BudgetHistory, BudgetHistoryBase
@@ -53,3 +55,14 @@ async def create_budgets_history(budgets_history: BudgetHistoryBase, db: Session
     db.add(db_budgets_history)
     db.commit()
     return {"message": "Budgets_History created successfully"}
+
+@router.get("/users/{user_id}", status_code=status.HTTP_200_OK)
+async def get_budgets_history_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    budget = db.query(Budget).filter(Budget.user_id == user_id).first()
+    budgets_categories = db.query(BudgetCategory).filter(BudgetCategory.budget_id == budget.budget_id).first()
+    budgets_history = db.query(BudgetHistory).filter(BudgetHistory.budgets_categories_id == budgets_categories.budgets_categories_id).all()
+
+    # Check if any budget categories are associated with the specified budget ID, raise an exception if not found
+    if not budgets_history or not budget or not budgets_categories:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"budgets_history with user_id {user_id} not found")
+    return budgets_history

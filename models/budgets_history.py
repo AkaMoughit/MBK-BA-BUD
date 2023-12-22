@@ -11,7 +11,7 @@ class BudgetHistory(Base):
 
     budgets_history_id = Column(Integer, primary_key=True, index=True)
     budgets_categories_id = Column(Integer)
-    type = Column(Float)
+    type = Column(Boolean)
     amount = Column(Float)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
