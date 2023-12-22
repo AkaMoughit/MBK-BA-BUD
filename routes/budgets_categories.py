@@ -83,3 +83,16 @@ async def get_budgets_categories_by_budget_id(budget_id: int, db: Session = Depe
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Budgets_Categories with budget_id {budget_id} not found")
 
     return budgets_categories
+
+
+@router.get("/users/{user_id}", status_code=status.HTTP_200_OK)
+async def get_budgets_categories_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    # Retrieve all budget categories associated with the specified budget ID from the database
+    budget = db.query(Budget).filter(Budget.user_id == user_id).first()
+    budgets_categories = db.query(BudgetCategory).filter(BudgetCategory.budget_id == budget.budget_id).all()
+
+    # Check if any budget categories are associated with the specified budget ID, raise an exception if not found
+    if not budgets_categories or not budget:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Budgets_Categories with user_id {user_id} not found")
+
+    return budgets_categories
