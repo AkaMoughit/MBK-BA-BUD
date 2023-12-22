@@ -2,6 +2,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from models.budgets import Budget, BudgetBase
 
 from database import get_db
 from models.budgets_categories import BudgetCategory, BudgetCategoryBase
@@ -11,11 +12,22 @@ router = APIRouter(prefix="/budgets/categories", tags=["Budgets_Categories"])
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_budgets_categories(budgets_categories: BudgetCategoryBase, db: Session = Depends(get_db)):
+    budget = db.query(Budget).filter(Budget.budget_id == budgets_categories.budget_id).first()
+    if not budget:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Budget not found"
+        )
+    if budget.remaining_amount < budgets_categories.amount:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="budget not enough"
+        )
     budgets_categories_data = budgets_categories.dict()
     budgets_categories_data["created_at"] = datetime.now()
     budgets_categories_data["remaining_amount"] = budgets_categories_data["amount"]
     db_budgets_categories = BudgetCategory(**budgets_categories_data)
     db.add(db_budgets_categories)
+    db.commit()
+    budget.remaining_amount = budget.remaining_amount - db_budgets_categories.amount
     db.commit()
     return {"message": "Budgets_Categories created successfully"}
 
