@@ -9,19 +9,15 @@ from models.budgets_categories import BudgetCategory, BudgetCategoryBase
 # Create an APIRouter instance with a specific prefix and tags
 router = APIRouter(prefix="/budgets/categories", tags=["Budgets_Categories"])
 
-# Endpoint to create a new budget category
-# @router.post("/", status_code=status.HTTP_201_CREATED)
-# async def create_budget_categories(budgetCategory: BudgetCategory, db: Session = Depends(get_db)):
-#     # Extract data from the request and set the creation timestamp
-#     budget_data = budgetCategory.dict()
-#     budget_data["created_at"] = datetime.now()
-
-#     # Create a new budget category record in the database
-#     db_budget = BudgetCategory(**budget_data)
-#     db.add(db_budget)
-#     db.commit()
-
-#     return {"message": "Budgets_Categories created successfully"}
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def create_budgets_categories(budgets_categories: BudgetCategoryBase, db: Session = Depends(get_db)):
+    budgets_categories_data = budgets_categories.dict()
+    budgets_categories_data["created_at"] = datetime.now()
+    budgets_categories_data["remaining_amount"] = budgets_categories_data["amount"]
+    db_budgets_categories = BudgetCategory(**budgets_categories_data)
+    db.add(db_budgets_categories)
+    db.commit()
+    return {"message": "Budgets_Categories created successfully"}
 
 # Endpoint to retrieve all budget categories
 @router.get("/", status_code=status.HTTP_200_OK)

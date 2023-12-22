@@ -45,13 +45,11 @@ async def get_budgets_history_by_budget_id(budgets_categories_id: int, db: Sessi
     budgets_history = db.query(BudgetHistory).filter(BudgetHistory.budgets_categories_id == budgets_categories_id).all()
     return budgets_history
 
-# @router.post("/", status_code=status.HTTP_201_CREATED)
-# async def create_budgets_history(budgets_history: BudgetHistory, db: Session = Depends(get_db)):
-#     budgets_history_data = budgets_history.dict()
-#     budgets_history_data["created_at"] = datetime.now()
-
-#     db_budgets_history = BudgetHistory(**budgets_history_data)
-#     db.add(db_budgets_history)
-#     db.commit()
-
-#     return {"message": "Budgets_History created successfully"}
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def create_budgets_history(budgets_history: BudgetHistoryBase, db: Session = Depends(get_db)):
+    budgets_history_data = budgets_history.dict()
+    budgets_history_data["created_at"] = datetime.now()
+    db_budgets_history = BudgetHistory(**budgets_history_data)
+    db.add(db_budgets_history)
+    db.commit()
+    return {"message": "Budgets_History created successfully"}
