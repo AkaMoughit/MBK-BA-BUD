@@ -20,6 +20,7 @@ class BudgetCategory(Base):
 
 # Define the Pydantic model for creating or updating budget categories
 class BudgetCategoryBase(BaseModel):
+    budgets_categories_id : int
     budget_id: int  # ID of the associated budget
     budget_name: str  # Name of the budget category
     start_at: date  # Start date of the budget category

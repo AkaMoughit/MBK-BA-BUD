@@ -75,10 +75,13 @@ async def get_budgets_history_by_user_id(user_id: int, db: Session = Depends(get
     # Retrieve the user's budget, budget category, and associated budgets history
     budget = db.query(Budget).filter(Budget.user_id == user_id).first()
     budgets_categories = db.query(BudgetCategory).filter(BudgetCategory.budget_id == budget.budget_id).first()
+    if not budgets_categories:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Budgets_Categories with user_id {user_id} not found")
+
     budgets_history = db.query(BudgetHistory).filter(BudgetHistory.budgets_categories_id == budgets_categories.budgets_categories_id).all()
 
     # Check if any budget history is associated with the specified user ID, raise an exception if not found
     if not budgets_history or not budget or not budgets_categories:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Budgets_History with user_id {user_id} not found")
-    
+
     return budgets_history
