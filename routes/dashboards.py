@@ -13,20 +13,20 @@ from models.dashboard import Dashboard
 # Create a FastAPI router with a specific prefix and tags
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
-@router.get("/", response_model=Dashboard, status_code=status.HTTP_200_OK)
+@router.get("/{user_id}", response_model=Dashboard, status_code=status.HTTP_200_OK)
 def get_dashboard_info(
-    budget_id: int,
+    user_id: int,
     db: Session = Depends(get_db)
 ):
     # Fetch budget information
-    budget = db.query(Budget).filter(Budget.budget_id == budget_id).first()
+    budget = db.query(Budget).filter(Budget.user_id == user_id).first()
 
     if not budget:
         # Raise an exception if the budget is not found
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Budget not found")
 
     # Fetch budget categories associated with the budget
-    budgets_categories = db.query(BudgetCategory).filter(BudgetCategory.budget_id == budget_id).all()
+    budgets_categories = db.query(BudgetCategory).filter(BudgetCategory.budget_id == budget.budget_id).all()
 
     # Fetch income and expense information from budget history
     incomes = (
