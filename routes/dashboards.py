@@ -22,6 +22,7 @@ def get_dashboard_info(
     budget = db.query(Budget).filter(Budget.budget_id == budget_id).first()
 
     if not budget:
+        # Raise an exception if the budget is not found
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Budget not found")
 
     # Fetch budget categories associated with the budget
@@ -32,21 +33,16 @@ def get_dashboard_info(
         db.query(func.sum(BudgetHistory.amount))
         .filter(
             BudgetHistory.budgets_categories_id.in_([bc.budgets_categories_id for bc in budgets_categories]),
-            BudgetHistory.type == True  # Assuming True represents income
+            BudgetHistory.type == True  # True indicates income in the BudgetHistory model
         )
         .scalar() or 0
     )
-
-
-
-
-
 
     expenses = (
         db.query(func.sum(BudgetHistory.amount))
         .filter(
             BudgetHistory.budgets_categories_id.in_([bc.budgets_categories_id for bc in budgets_categories]),
-            BudgetHistory.type == False  # Assuming False represents expense
+            BudgetHistory.type == False  # False indicates expense in the BudgetHistory model
         )
         .scalar() or 0
     )
